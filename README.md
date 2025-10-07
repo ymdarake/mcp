@@ -1,6 +1,4 @@
-# meta/mcp — Local Code Assistant コレクション
-
-このリポジトリは、ローカルで動作する自己完結型の「Local Code Assistant」を含むサンプル／まとめリポジトリです。MCP（Claude のツール）コレクションに組み込んで使えるように整理しています。
+# mcp
 
 主要なディレクトリ構成
 
@@ -14,23 +12,7 @@
 - `tests/`（ルート） — ルート向けテスト（存在する場合があります）
 - `Makefile`（ルート） — ルートで使える補助コマンド（`make test` など）
 
-クイックスタート
-
-1. リポジトリのルートでテストを実行する（ルート Makefile がある場合）:
-
-```bash
-make test
-```
-
-2. パッケージ単位でテストやスモークテストを実行するには:
-
-```bash
-cd mcp_local_assistant
-make test
-make smoke
-```
-
-Claude / MCP への登録（プロジェクトに紐づける方法）
+## Claude / MCP への登録（プロジェクトに紐づける方法）
 
 プロジェクトに対してこのアシスタントを MCP ツールとして登録する場合、対象プロジェクトのルートでコマンドを実行すると、そのプロジェクト向けに `--project` を固定して登録できます。例:
 
@@ -38,33 +20,20 @@ Claude / MCP への登録（プロジェクトに紐づける方法）
 # まずプロジェクトのルートへ移動
 cd /path/to/your/project
 
-# そのディレクトリを --project に渡して登録する
-claude mcp add local-assistant -- python /Users/ymdarake/workspace/meta/mcp/mcp_local_assistant/local_code_assistant.py --project $(pwd)
+# 推奨: Python を明示して登録する（移植性が高い）
+claude mcp add local-assistant -- python /absolute/path/to/repo/local_code_assistant/local_code_assistant.py --project "$(pwd)"
 ```
-
-このように登録すれば、実行時に `--project` に登録時の絶対パスが渡され、ツールはそのプロジェクトのみを操作します。
-
-注意:
-
-- `$(pwd)` はシェルで展開されるため、登録を行ったディレクトリの絶対パスがコマンドに埋め込まれます。別のディレクトリで実行したい場合や動的にプロジェクトを切り替えたい場合は、ラッパースクリプトを用意して `os.getcwd()` を渡す方式が柔軟です。
-- スクリプトを直接実行可能にしたい場合は、`local_code_assistant.py` の先頭に `#!/usr/bin/env python3` を追加して `chmod +x` を実行してください。すると `python` を明示せずにパスだけで登録できます。
 
 例（実行可能化後の登録）:
 
 ```bash
-chmod +x /Users/ymdarake/workspace/meta/mcp/mcp_local_assistant/local_code_assistant.py
+SCRIPT_PATH=/absolute/path/to/repo/local_code_assistant/local_code_assistant.py
+chmod +x "$SCRIPT_PATH"
 cd /path/to/your/project
-claude mcp add local-assistant -- /Users/ymdarake/workspace/meta/mcp/mcp_local_assistant/local_code_assistant.py --project $(pwd)
+claude mcp add local-assistant -- "$SCRIPT_PATH" --project "$(pwd)"
+
+注意:
+- `python /path/to/script.py` は Windows を含む幅広い環境で確実に動きます。
+- 実行可能化して直接登録する方法は短くて便利ですが、shebang と実行ビットに依存します（主に macOS/Linux 向け）。
+- `$(pwd)` は登録コマンドを実行したシェルで展開され、登録時にその絶対パスがコマンドに埋め込まれます。登録後はそのプロジェクトに固定される点に注意してください。
 ```
-
-README とドキュメント
-
-- パッケージ固有の使い方や MCP との連携例は `mcp_local_assistant/README.md` を参照してください。Claude（MCP）向けの JSON コマンド例や Python サブプロセスのサンプルを載せています。
-
-次にやること（提案）
-
-- ラッパースクリプトを追加して、登録時に固定パスを書き込まずにどのプロジェクトでも動かせるようにする
-- Git リポジトリの整備（LICENSE、.gitignore、初回コミット）を行う
-- CI (GitHub Actions) を追加して `make test` を自動化する
-
-必要な作業があれば教えてください。どれを優先しますか？
