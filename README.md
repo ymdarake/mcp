@@ -1,5 +1,7 @@
 # mcp
 
+[![CI](https://github.com/ymdarake/mcp/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ymdarake/mcp/actions/workflows/ci.yml)
+
 主要なディレクトリ構成
 
 - `mcp_local_assistant/` — パッケージ化したアシスタント本体
